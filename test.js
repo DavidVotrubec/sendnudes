@@ -1,43 +1,81 @@
-const Flickr = require("flickrapi");
 const { getRandomInteger } = require('./math');
+const { sendHttpsRequest } = require('./send-http-request');
 
-function test() {
+async function getTotalImageCount(searchTerm) {
+    const url = composeUrl(searchTerm, 1, 1);
+    const flickrResponse = await sendHttpsRequest({
+        host: 'api.flickr.com',
+        path: url,
+        method: 'GET'
+    }, null);
+
+    const flickrResponse = await sendHttpsRequest({
+        host: 'api.flickr.com',
+        path: url,
+        method: 'GET'
+    }, null);
+
+    return JSON.parse(flickrResponse).photos.total;
+}
+
+async function getImageUrl() {
+    // TODO: Send 2 requests
+    // First to get total page size
+    // second to get random image in pagesSize of 1
+    
     const flickrOptions = {
         api_key: "dc931bf8cee8b68e980c7b64b54d4849",
-        secret: "44db63bc197668c4",
-        timeout: 3000
+        secret: "44db63bc197668c4"
     };
 
-    // Flickr.authenticate(flickrOptions, function(error, flickr) {
-    const token = Flickr.tokenOnly(flickrOptions, function(error, flickr) {
-        // we can now use "flickr" as our API object
-        console.log('flicks is', flickr);
-        console.log('error is', error);
+    const imageCount = await getTotalImageCount("nude")
+    const randomIndex = getRandomInteger(0, imageCount);
 
-        const randomPage = getRandomInteger(1, 100);
 
-        const searchResult =  flickr.photos.search({
-            // user_id: flickr.options.user_id,
-            page: randomPage,
-            per_page: 500,
-            text: "nude" // todo: use user input
-        }, function(err, result) {
-            // result is Flickr's response
-            var rnd = getRandomInteger(0, 500);
+    const url = composeUrl('nude', 1, randomIndex);
+    console.log('url', url);
 
-            const randomMatch = result.photos.photo[rnd];
+    const flickrResponse = await sendHttpsRequest({
+        host: 'api.flickr.com',
+        path: url,
+        method: 'GET'
+    }, null);
 
-            // console.log('random match', randomMatch);
+    console.log('result is', flickrResponse);
 
-            var url = `https://farm${randomMatch.farm}.staticflickr.com/${randomMatch.server}/${randomMatch.id}_${randomMatch.secret}.jpg`;
-            console.log('image url is', url);
-        });
+    const randomMatch = JSON.parse(flickrResponse).photos.photo[randomIndex];
 
-        console.log('searchResult', searchResult);
-    });
+    console.log('randomMatch', randomMatch);
 
-    console.log('token', token);
+    // https://farm66.staticflickr.com/65535/46927517424_6ae83237f7.jpg
+    const imageUrl = `https://farm${randomMatch.farm}.staticflickr.com/${randomMatch.server}/${randomMatch.id}_${randomMatch.secret}.jpg`;
+    console.log('url', imageUrl);
 };
+
+function composeUrl(text, pageSize, pageIndex) {
+    var options = {
+        "method": "flickr.photos.search",
+        "api_key": "dc931bf8cee8b68e980c7b64b54d4849",
+        "text": text,
+        "per_page": pageSize,
+        "page": pageIndex,
+        "format": "json",
+        "nojsoncallback": "1"
+      };
+
+    // const baseUrl = 'api.flickr.com/services/rest/?';
+    const baseUrl = '/services/rest/?';
+    let url = baseUrl;
+
+    for (var property in options) {
+        if (options.hasOwnProperty(property)) {
+            url += `${property}=${options[property]}&`;
+        }
+    }
+
+    return url;
+}
+
 
 test();
 
