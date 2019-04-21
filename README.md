@@ -13,10 +13,9 @@ App for Slack Hackathon
 
 ## Slack workspace
 hackathon-vql7265.slack.com
+OAuth token: xoxp-616316357782-602910397458-602916377874-fb7574d071d9d8f37e7e4cd5d5eca1e3
 
 ## Setup workspace
 1. Install Pulumi
 1. configure access keys via `aws configure`
 1. goto project dir and invoke `pulumi new typescript`. You might need to add `--force` when directory is not empty
-
-## Another test commit
