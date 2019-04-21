@@ -1,10 +1,8 @@
 {
-    "name": "typescript",
-    "devDependencies": {
-        "@pulumi/cloud-aws": "^0.18.0",
-        "@types/node": "latest"
-    },
+    "name": "javascript",
+    "main": "index.js",
     "dependencies": {
+        "@pulumi/cloud-aws": "^0.18.0",
         "@pulumi/pulumi": "latest",
         "flickrapi": "^0.6.0"
     }
