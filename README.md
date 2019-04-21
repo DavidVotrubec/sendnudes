@@ -18,3 +18,5 @@ hackathon-vql7265.slack.com
 1. Install Pulumi
 1. configure access keys via `aws configure`
 1. goto project dir and invoke `pulumi new typescript`. You might need to add `--force` when directory is not empty
+
+## Another test commit
