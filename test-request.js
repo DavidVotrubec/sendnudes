@@ -52,33 +52,43 @@
 //     console.log('url', imageUrl);
 // };
 
-// function composeUrl(text, pageSize, pageIndex) {
-//     var options = {
-//         "method": "flickr.photos.search",
-//         "api_key": "dc931bf8cee8b68e980c7b64b54d4849",
-//         "text": text,
-//         "per_page": pageSize,
-//         "page": pageIndex,
-//         "format": "json",
-//         "nojsoncallback": "1"
-//       };
+function composeUrl(text, pageSize, pageIndex) {
+    var options = {
+        "method": "flickr.photos.search",
+        "api_key": "dc931bf8cee8b68e980c7b64b54d4849",
+        "text": text,
+        "per_page": pageSize,
+        "page": pageIndex,
+        "format": "json",
+        "nojsoncallback": "1"
+      };
 
-//     // const baseUrl = 'api.flickr.com/services/rest/?';
-//     const baseUrl = '/services/rest/?';
-//     let url = baseUrl;
+    // const baseUrl = 'api.flickr.com/services/rest/?';
+    const baseUrl = '/services/rest/?';
+    let url = baseUrl;
 
-//     for (var property in options) {
-//         if (options.hasOwnProperty(property)) {
-//             url += `${property}=${options[property]}&`;
-//         }
-//     }
+    for (var property in options) {
+        if (options.hasOwnProperty(property)) {
+            url += `${property}=${options[property]}&`;
+        }
+    }
 
-//     return url;
-// }
+    return url;
+}
 
 
 // test();
 
 async function testRequest() {
-    sendHttpsRequest
+    const url = composeUrl("nude", 20, 2);
+
+    const flickrResponse = await sendHttpsRequest({
+        host: 'api.flickr.com',
+        path: url,
+        method: 'GET'
+    }, null);
+
+    console.log('flickrResponse', flickrResponse);
 }
+
+testRequest();

@@ -49,14 +49,18 @@ async function getTotalImageCount(searchTerm) {
 async function getImageUrl() {
     let imageCount = await getTotalImageCount("nude");
     if (imageCount >= 100000) {
-        imageCount = 100000 - 1;
+        imageCount = 100000 - 1000;
     }
 
-    const randomIndex = getRandomInteger(0, imageCount - 1);
+    const randomIndex = getRandomInteger(0, Math.floor(imageCount / 100));
 
+    console.log('-----');
+    console.log('');
     console.log('imageCount', imageCount, 'randomIndex', randomIndex);
+    console.log('');
+    console.log('-----');
 
-    const url = composeUrl('nude', 1, randomIndex);
+    const url = composeUrl('nude', 100, randomIndex);
     console.log('url', url);
 
     const flickrResponse = await sendHttpsRequest({
@@ -67,7 +71,8 @@ async function getImageUrl() {
 
     console.log('result is', flickrResponse);
 
-    const randomMatch = JSON.parse(flickrResponse).photos.photo[0];
+    const randomPhotoIndex = getRandomInteger(0, 100);
+    const randomMatch = JSON.parse(flickrResponse).photos.photo[randomPhotoIndex];
 
     console.log('randomMatch', randomMatch);
 

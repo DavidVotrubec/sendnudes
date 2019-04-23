@@ -2,16 +2,16 @@
 const https = require("https");
 
 module.exports.sendHttpsRequest = function(options, payload) {
-    console.log(`sending request to ${options.host}`);
+    // console.log(`sending request to ${options.host}`);
  
     return new Promise(function (resolve, reject) {
         try {
-            console.log( `request to ${options.host} has been sent A`);
+            // console.log( `request to ${options.host} has been sent A`);
  
             let body = [];
             const request = https.request(options, function (res) {
-                console.log('statusCode:', res.statusCode);
-                console.log('headers:', res.headers);
+                // console.log('statusCode:', res.statusCode);
+                // console.log('headers:', res.headers);
  
                 if (res.statusCode != 200) {
                     reject(res.statusCode);
@@ -25,14 +25,32 @@ module.exports.sendHttpsRequest = function(options, payload) {
  
                   // It seems that the 'request.on('end') is never fired
                   // I receive the data in the first batch, and that's it
-                  resolve(data.toString());
+                //   resolve(data.toString());
                 });
+
+                res.on('end', () => {
+                    console.error('Request A ended');
+                    // at this point, `body` has the entire request body stored in it as a string
+                    let result = Buffer.concat(body).toString();
+                    console.log('');
+                    console.log(' ///////////////////////////////////////////');
+                    console.log('');
+                    console.log('result', result);
+                    resolve(result);
+
+                    return;
+                });
+     
             });
  
             request.on('end', () => {
                 console.error('Request ended');
                 // at this point, `body` has the entire request body stored in it as a string
                 let result = Buffer.concat(body).toString();
+                console.log('');
+                console.log(' ///////////////////////////////////////////');
+                console.log('');
+                console.log('result', result);
                 resolve(result);
             });
  
@@ -42,7 +60,7 @@ module.exports.sendHttpsRequest = function(options, payload) {
               reject(err);
             });
  
-            console.log('Payload is', payload);
+            // console.log('Payload is', payload);
  
             if (payload) {
                 request.write(payload);
@@ -54,6 +72,6 @@ module.exports.sendHttpsRequest = function(options, payload) {
             console.log('Something unexpected', e);
         }
  
-      console.log( `request to ${options.host} has been sent B`);
+    //   console.log( `request to ${options.host} has been sent B`);
     });
  }
