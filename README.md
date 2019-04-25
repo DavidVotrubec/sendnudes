@@ -1,5 +1,5 @@
 # sendnudes
-App for Slack Hackathon
+App for Slack Hackathon at Producthub
 
 ## Authors
 1. David Votrubec
