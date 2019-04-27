@@ -108,11 +108,12 @@ function composeUrl(text, pageSize, pageIndex, filterBy) {
     var options = {
         "method": "flickr.photos.search",
         "api_key": "dc931bf8cee8b68e980c7b64b54d4849",
-        //"text": text,
+        "text": text,
         "per_page": pageSize,
         "page": pageIndex,
         "format": "json",
         "nojsoncallback": "1",
+        "tag_mode": "all",
         "safe_search": "3" // yes, send nudes please
       };
 
