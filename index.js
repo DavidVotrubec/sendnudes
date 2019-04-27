@@ -16,7 +16,7 @@ api.post('/', async (request, response) => {
 		const queryObj = parseQueryString(request.body.toString());
     	const customParams = queryObj.text;
 
-        const imageUrl = await getImageUrl();
+        const imageUrl = await getImageUrl(customParams);
         const blockResponse =         {
             "blocks": [
                 {
@@ -57,8 +57,8 @@ api.post('/', async (request, response) => {
     }
 });
 
-async function getTotalImageCount(searchTerm) {
-    const url = composeUrl(searchTerm, 1, 1);
+async function getTotalImageCount(searchTerm, filterBy) {
+    const url = composeUrl(searchTerm, 1, 1, filterBy);
 
     const flickrResponse = await sendHttpsRequest({
         host: 'api.flickr.com',
@@ -69,22 +69,23 @@ async function getTotalImageCount(searchTerm) {
     return JSON.parse(flickrResponse).photos.total;
 }
 
-async function getImageUrl() {
-    const pageSize = 500
+async function getImageUrl(filterBy) {
+    const pageSize = 500;
 
-    const imageCount = await getTotalImageCount("nude");
-    const pageCount = imageCount / pageSize
+    const searchNudeTerm = 'naked';
+    const imageCount = await getTotalImageCount(searchNudeTerm, filterBy);
+    const pageCount = imageCount / pageSize;
 
     console.log("pageCount", pageCount)
 
     const randomPageIndex = getRandomInteger(0, pageCount - 1);
-    let randomImegeIndex = getRandomInteger(0, pageSize);
+    let randomImageIndex = getRandomInteger(0, pageSize);
     if(randomPageIndex == pageCount - 1)
     {
-        randomImegeIndex = getRandomInteger(0, pageCount % pageSize);
+        randomImageIndex = getRandomInteger(0, pageCount % pageSize);
     }
 
-    const url = composeUrl('nude', pageSize, randomPageIndex);
+    const url = composeUrl(searchNudeTerm, pageSize, randomPageIndex, filterBy);
     console.log('url', url);
 
     const flickrResponse = await sendHttpsRequest({
@@ -93,25 +94,38 @@ async function getImageUrl() {
         method: 'GET'
     }, null);
 
-    const randomMatch = JSON.parse(flickrResponse).photos.photo[randomImegeIndex];
+    const randomMatch = JSON.parse(flickrResponse).photos.photo[randomImageIndex];
 
-    console.log(`Selected page: ${randomPageIndex} with image index: ${randomImegeIndex}`);
+    console.log(`Selected page: ${randomPageIndex} with image index: ${randomImageIndex}`);
     console.log('randomMatch', randomMatch);
 
     const imageUrl = `https://farm${randomMatch.farm}.staticflickr.com/${randomMatch.server}/${randomMatch.id}_${randomMatch.secret}.jpg`;
     return imageUrl;
 };
 
-function composeUrl(text, pageSize, pageIndex) {
+function composeUrl(text, pageSize, pageIndex, filterBy) {
+    // TODO: filterBy is optional, can be blank
     var options = {
         "method": "flickr.photos.search",
         "api_key": "dc931bf8cee8b68e980c7b64b54d4849",
-        "text": text,
+        //"text": text,
         "per_page": pageSize,
         "page": pageIndex,
         "format": "json",
-        "nojsoncallback": "1"
+        "nojsoncallback": "1",
+        "safe_search": "3" // yes, send nudes please
       };
+
+    let tagsArr = text.split(' ');
+    if (filterBy) {
+        const tags = filterBy.split(' ');
+        tagsArr = tagsArr.concat(tags);
+    }
+
+    // First tags have the highest priority
+    tagsArr = tagsArr.reverse();
+
+    options.tags = tagsArr.join(',');
 
     const baseUrl = '/services/rest/?';
     let url = baseUrl;
@@ -122,6 +136,7 @@ function composeUrl(text, pageSize, pageIndex) {
         }
     }
 
+    console.log('url is', url);
     return url;
 }
 
