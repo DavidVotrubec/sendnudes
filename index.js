@@ -16,7 +16,7 @@ api.post('/', async (request, response) => {
 		const queryObj = parseQueryString(request.body.toString());
     	const customParams = queryObj.text;
 
-        const imageUrl = await getImageUrl(customParams);
+        const imageInfo = await getImageInfo(customParams);
         const blockResponse =         {
             "blocks": [
                 {
@@ -25,8 +25,8 @@ api.post('/', async (request, response) => {
                         "type": "plain_text",
                         "text": "Please enjoy looking at incredibly nude people"
                     },
-                    "image_url": imageUrl,
-                    "alt_text": "An incredibly nude human."
+                    "image_url": imageInfo.url,
+                    "alt_text": imageInfo.description
                 }
             ]
         };
@@ -69,7 +69,7 @@ async function getTotalImageCount(searchTerm, filterBy) {
     return JSON.parse(flickrResponse).photos.total;
 }
 
-async function getImageUrl(filterBy) {
+async function getImageInfo(filterBy) {
     const pageSize = 500;
 
     const searchNudeTerm = 'naked';
@@ -100,7 +100,11 @@ async function getImageUrl(filterBy) {
     console.log('randomMatch', randomMatch);
 
     const imageUrl = `https://farm${randomMatch.farm}.staticflickr.com/${randomMatch.server}/${randomMatch.id}_${randomMatch.secret}.jpg`;
-    return imageUrl;
+    
+    return {
+        "url": imageUrl,
+        "description": randomMatch.title
+    };
 };
 
 function composeUrl(text, pageSize, pageIndex, filterBy) {
