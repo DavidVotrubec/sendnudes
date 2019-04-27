@@ -12,32 +12,49 @@ api.get('/', (request, response) => {
 
 api.post('/', async (request, response) => {
     // Future: use user defined tags
-    
-    const queryObj = parseQueryString(request.body.toString());
-    const customParams = queryObj.text;
+    try{
+		const queryObj = parseQueryString(request.body.toString());
+    	const customParams = queryObj.text;
 
-    console.log('customParams', customParams);
+        const imageUrl = await getImageUrl();
+        const blockResponse =         {
+            "blocks": [
+                {
+                    "type": "image",
+                    "title": {
+                        "type": "plain_text",
+                        "text": "Please enjoy looking at incredibly nude people"
+                    },
+                    "image_url": imageUrl,
+                    "alt_text": "An incredibly nude human."
+                }
+            ]
+        };
 
-    const imageUrl = await getImageUrl();
-    const blockResponse =         {
+        console.log("blockResponse: ", blockResponse)
+
+        response.status(200).json(
+            blockResponse
+        );  
+    } 
+    catch(err)
+    {
+        const blockResponse = {
         "blocks": [
             {
-                "type": "image",
-                "title": {
+                "type": "section",
+                "text": {
                     "type": "plain_text",
-                    "text": "Please enjoy looking at incredibly nude people"
-                },
-                "image_url": imageUrl,
-                "alt_text": "An incredibly nude human."
+                    "text": `Error executing script: ${err}`
+                }
             }
-        ]
-    };
+            ]
+        }
 
-    console.log("blockResponse: ", blockResponse)
-
-    response.status(200).json(
-        blockResponse
-    );   
+        response.status(200).json(
+            blockResponse
+        );  
+    }
 });
 
 async function getTotalImageCount(searchTerm) {
@@ -53,20 +70,21 @@ async function getTotalImageCount(searchTerm) {
 }
 
 async function getImageUrl() {
-    let imageCount = await getTotalImageCount("nude");
-    if (imageCount >= 100000) {
-        imageCount = 100000 - 1000;
+    const pageSize = 500
+
+    const imageCount = await getTotalImageCount("nude");
+    const pageCount = imageCount / pageSize
+
+    console.log("pageCount", pageCount)
+
+    const randomPageIndex = getRandomInteger(0, pageCount - 1);
+    let randomImegeIndex = getRandomInteger(0, pageSize);
+    if(randomPageIndex == pageCount - 1)
+    {
+        randomImegeIndex = getRandomInteger(0, pageCount % pageSize);
     }
 
-    const randomIndex = getRandomInteger(0, Math.floor(imageCount / 100));
-
-    console.log('-----');
-    console.log('');
-    console.log('imageCount', imageCount, 'randomIndex', randomIndex);
-    console.log('');
-    console.log('-----');
-
-    const url = composeUrl('nude', 100, randomIndex);
+    const url = composeUrl('nude', pageSize, randomPageIndex);
     console.log('url', url);
 
     const flickrResponse = await sendHttpsRequest({
@@ -75,11 +93,9 @@ async function getImageUrl() {
         method: 'GET'
     }, null);
 
-    // console.log('result is', flickrResponse);
+    const randomMatch = JSON.parse(flickrResponse).photos.photo[randomImegeIndex];
 
-    const randomPhotoIndex = getRandomInteger(0, 100);
-    const randomMatch = JSON.parse(flickrResponse).photos.photo[randomPhotoIndex];
-
+    console.log(`Selected page: ${randomPageIndex} with image index: ${randomImegeIndex}`);
     console.log('randomMatch', randomMatch);
 
     const imageUrl = `https://farm${randomMatch.farm}.staticflickr.com/${randomMatch.server}/${randomMatch.id}_${randomMatch.secret}.jpg`;
