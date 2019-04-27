@@ -3,6 +3,7 @@ const pulumi = require("@pulumi/pulumi");
 const cloud = require("@pulumi/cloud-aws");
 const { getRandomInteger } = require('./math');
 const { sendHttpsRequest } = require('./send-http-request');
+const { parseQueryString } = require('./parse-query-string');
 
 const api = new cloud.API('sendnudes-api');
 api.get('/', (request, response) => {
@@ -11,6 +12,11 @@ api.get('/', (request, response) => {
 
 api.post('/', async (request, response) => {
     // Future: use user defined tags
+    
+    const queryObj = parseQueryString(request.body.toString());
+    const customParams = queryObj.text;
+
+    console.log('customParams', customParams);
 
     const imageUrl = await getImageUrl();
     const blockResponse =         {
@@ -69,7 +75,7 @@ async function getImageUrl() {
         method: 'GET'
     }, null);
 
-    console.log('result is', flickrResponse);
+    // console.log('result is', flickrResponse);
 
     const randomPhotoIndex = getRandomInteger(0, 100);
     const randomMatch = JSON.parse(flickrResponse).photos.photo[randomPhotoIndex];
