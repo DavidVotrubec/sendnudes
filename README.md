@@ -11,15 +11,9 @@ App for Slack Hackathon at Producthub
 1. AWS cli - https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html
 1. Slack API
 
-## Slack workspace
-hackathon-vql7265.slack.com
-OAuth token: xoxp-616316357782-602910397458-608017201425-6a991534cc3ea362e731012f14f3a310
-
-## Flickr
-API key: dc931bf8cee8b68e980c7b64b54d4849
-secret: 44db63bc197668c4
 
 ### Aditional info
+```
 var options = {                                          // options used to send to flickr
   "method": "flickr.photos.search",
   "api_key": "",
@@ -31,6 +25,7 @@ var options = {                                          // options used to send
   "nojsoncallback": "1"
 };
 https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=dc931bf8cee8b68e980c7b64b54d4849&text=nude&format=json
+```
 
 ## Setup workspace
 1. Install Pulumi
