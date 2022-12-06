@@ -4,6 +4,6 @@
     "dependencies": {
         "@pulumi/cloud-aws": "^0.18.0",
         "@pulumi/pulumi": "latest",
-        "flickrapi": "^0.6.0"
+        "flickrapi": "^0.6.2"
     }
 }
